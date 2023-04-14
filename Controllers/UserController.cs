@@ -1,32 +1,39 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using VKCollectionApi.Data.Models;
 using VKCollectionApi.ViewModels.User;
 
-namespace VKCollectionApi.Controllers
+namespace Jewelry_Web_Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : Controller
     {
+
+
         private readonly SignInManager<Client> _signInManager;
         private readonly UserManager<Client> _userManager;
+        private readonly IConfiguration _config;
 
         public UserController(SignInManager<Client> signInManager,
-                                UserManager<Client> userManager
-                               )
+                               UserManager<Client> userManager,
+                               IConfiguration config)
         {
             _signInManager = signInManager;
             _userManager = userManager;
-           
+            _config = config;
         }
-
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var user = new Client
             {
-                UserName = model.Username,
+                UserName = model.Email,
                 Email = model.Email,
                 FirstName= model.FirstName,
                 LastName= model.LastName,
@@ -38,16 +45,30 @@ namespace VKCollectionApi.Controllers
 
             if (result.Succeeded)
             {
-                
+                await _signInManager.SignInAsync(user, isPersistent: false);
 
-                return Ok(new {_Id = user.Id, Username = user.UserName, UserEmail = user.Email });
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_config.GetValue<string>("Jwt:Key"));
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                new Claim(ClaimTypes.Name, user.Id)
+                    }),
+                    Expires = DateTime.UtcNow.AddDays(7),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
 
+                return Ok(new { Token = tokenString, _Id = user.Id, Username = user.UserName, UserEmail = user.Email });
             }
             else
             {
                 return BadRequest(result.Errors);
             }
         }
+
 
 
         [HttpPost("login")]
@@ -57,15 +78,30 @@ namespace VKCollectionApi.Controllers
 
             if (result.Succeeded)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
-               
+                var user = await _userManager.FindByNameAsync(model.Email);
 
-                return Ok(new { _Id = user.Id , UserEmail = model.Email });
+                // Generate JWT token
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_config.GetValue<string>("Jwt:Key"));
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                new Claim(ClaimTypes.Name, user.Id)
+                    }),
+                    Expires = DateTime.UtcNow.AddDays(7),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+                return Ok(new { Token = tokenString, _Id = user.Id, Username = user.UserName, UserEmail = user.Email });
             }
             else
             {
-                return BadRequest("Invalid email or password");
+                return BadRequest("Invalid username or password");
             }
         }
+
     }
 }

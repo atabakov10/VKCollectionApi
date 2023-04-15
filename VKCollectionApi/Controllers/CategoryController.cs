@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using SendGrid.Helpers.Errors.Model;
+using VKCollectionApi.Core.Contracts;
 using VKCollectionApi.Core.ViewModels.Category;
 using VKCollectionApi.Infrastructure.Data;
-using VKCollectionApi.Infrastructure.Data.Models;
 
 namespace VKCollectionApi.Controllers
 {
@@ -11,82 +10,97 @@ namespace VKCollectionApi.Controllers
 	[Route("api/[controller]")]
 	public class CategoryController : Controller
 	{
-		private readonly ApiContext dbContext;
+		private readonly ICategoryService categoryService;
 
-		public CategoryController(ApiContext context)
+		public CategoryController(ICategoryService categoryService)
 		{
-			dbContext = context;
+			this.categoryService = categoryService;
 		}
 
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<ProductCategoryViewModel>>> GetCategories()
 		{
-			var categories = await dbContext.ProductCategories.ToListAsync();
+			var categories = await categoryService.GetCategories();
 
 			return Ok(categories);
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> PostCategory(ProductCategoryViewModel model)
+		public async Task<IActionResult> PostCategory([FromBody] ProductCategoryViewModel model)
 		{
-			if (model == null)
+			try
 			{
-				return BadRequest(ModelState);
+				if (!ModelState.IsValid)
+				{
+					return BadRequest(ModelState);
+				}
+
+				await categoryService.PostCategory(model);
+
+				var createdCategory = await categoryService.GetCategoryByName(model.Name);
+
+				return Ok(createdCategory);
 			}
-
-			var category = new ProductCategories
+			catch (Exception ex)
 			{
-				Name = model.Name
-			};
-
-			await dbContext.AddAsync(category);
-			await dbContext.SaveChangesAsync();
-			return Ok(category);
+				return BadRequest(ex.Message);
+			}
 		}
-
 		[HttpGet("{id}")]
-		public async Task<ActionResult> GetCategory(int id)
+		public async Task<ActionResult<ProductCategoryViewModel>> GetCategoryById(int id)
 		{
-			var category = await dbContext.ProductCategories.FindAsync(id);
-
-			if (category == null)
+			try
 			{
-				return NotFound();
-			}
+				var categoryViewModel = await categoryService.GetCategoryById(id);
 
-			return Ok(category);
+				return Ok(categoryViewModel);
+			}
+			catch (NotFoundException ex)
+			{
+				return NotFound(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, ex.Message);
+			}
 		}
 
 		[HttpDelete("{id}")]
 		public async Task<ActionResult> DeleteCategory(int id)
 		{
-			var category = await dbContext.ProductCategories.FindAsync(id);
-			if (category == null)
+			try
 			{
-				return NotFound();
+				var category = await categoryService.DeleteCategoryById(id);
+
+				return Ok(category);
 			}
-			dbContext.Remove(category);
-			await dbContext.SaveChangesAsync();
-			return Ok(category);
+			catch (NotFoundException ex)
+			{
+				return NotFound(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, ex.Message);
+			}
 		}
 
 		[HttpPut("{id}")]
-		public async Task<ActionResult> PutCategory(ProductCategoryViewModel model)
+		public async Task<ActionResult> EditCategory(ProductCategoryViewModel model)
 		{
-			var product = await dbContext.ProductCategories.FirstOrDefaultAsync(x=> x.Id == model.Id);
-
-			if (product != null)
+			try
 			{
-				product.Name = model.Name;
+				var categoryViewModel = await categoryService.EditCategory(model);
 
-				await dbContext.SaveChangesAsync();
+				return Ok(categoryViewModel);
 			}
-			else
+			catch (NotFoundException ex)
 			{
-				return NotFound();
+				return NotFound(ex.Message);
 			}
-
-			return Ok(product);
+			catch (Exception ex)
+			{
+				return StatusCode(500, ex.Message);
+			}
 		}
 	}
 }

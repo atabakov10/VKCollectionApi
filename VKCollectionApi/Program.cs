@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using VKCollectionApi.Extensions;
 using VKCollectionApi.Infrastructure.Data;
 using VKCollectionApi.Infrastructure.Data.Models;
 
@@ -19,6 +20,9 @@ builder.Services.AddDbContext<ApiContext>(options =>
 builder.Services.AddIdentity<Client, IdentityRole>()
     .AddEntityFrameworkStores<ApiContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddApplicationServices();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

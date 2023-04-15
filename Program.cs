@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using VKCollectionApi.Data;
-using VKCollectionApi.Data.Models;
+using VKCollectionApi.Infrastructure.Data;
+using VKCollectionApi.Infrastructure.Data.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -7,7 +7,6 @@ using VKCollectionApi.Infrastructure.Data.Models;
 
 namespace VKCollectionApi.Core.Services
 {
-
 	public class CategoryService : ICategoryService
 	{
 		private readonly ApiContext dbContext;

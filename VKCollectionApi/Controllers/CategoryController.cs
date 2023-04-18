@@ -2,7 +2,6 @@
 using SendGrid.Helpers.Errors.Model;
 using VKCollectionApi.Core.Contracts;
 using VKCollectionApi.Core.ViewModels.Category;
-using VKCollectionApi.Infrastructure.Data;
 
 namespace VKCollectionApi.Controllers
 {

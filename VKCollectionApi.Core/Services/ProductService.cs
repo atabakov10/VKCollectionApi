@@ -20,7 +20,7 @@ namespace VKCollectionApi.Core.Services
 		public async Task<ProductListingViewModel> GetProductByName(string productName)
 		{
 			var product = await dbContext.Products
-				.Include(x=> x.ProductCategory)
+				.Include(x => x.ProductCategory)
 				.FirstOrDefaultAsync(c => c.Name == productName);
 
 			if (product == null)
@@ -42,8 +42,8 @@ namespace VKCollectionApi.Core.Services
 
 		public async Task<ProductListingViewModel> DeleteProduct(int productId)
 		{
-			var productById = await dbContext.Products.Include(x=> x.ProductCategory)
-				.FirstOrDefaultAsync(x=> x.Id == productId);
+			var productById = await dbContext.Products.Include(x => x.ProductCategory)
+				.FirstOrDefaultAsync(x => x.Id == productId);
 			if (productById == null)
 			{
 				throw new NotFoundException($"Id - {productId} not found!");
@@ -86,7 +86,7 @@ namespace VKCollectionApi.Core.Services
 			return allProteins;
 		}
 
-		
+
 
 		public async Task PostProduct(AddProductViewModel productViewModel)
 		{
@@ -129,7 +129,32 @@ namespace VKCollectionApi.Core.Services
 		}
 
 
-		public async Task<Product?> GetProductById(int id)
-			=> await dbContext.FindAsync<Product>(id);
+		public async Task<ProductDetailsViewModel?> GetProductById(int id)
+		{
+			var product = await dbContext.Products
+				.Include(x => x.ProductCategory)
+				.Include(x => x.Client)
+				.FirstOrDefaultAsync(x => x.Id == id);
+
+			if (product == null)
+			{
+				throw new NotFoundException($"Product with id '{id}' not found.");
+			}
+
+			var productViewModel = new ProductDetailsViewModel
+			{
+				Id = product.Id,
+				Name = product.Name,
+				Price = product.Price,
+				Description = product.Description,
+				CategoryId = product.CategoryId,
+				CategoryName = product.ProductCategory.Name,
+				ImageUrl = product.ImageUrl,
+				SellerId = product.SellerId,
+				SellerName = $"{product.Client.FirstName} {product.Client.LastName}"
+			};
+
+			return productViewModel;
+		}
 	}
 }

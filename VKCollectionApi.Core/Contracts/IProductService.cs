@@ -11,7 +11,7 @@ namespace VKCollectionApi.Core.Contracts
 
 		Task<AddProductViewModel> EditProduct(AddProductViewModel model);
 
-		Task<Product?> GetProductById(int id);
+		Task<ProductDetailsViewModel?> GetProductById(int id);
 
 		Task<ProductListingViewModel> DeleteProduct(int productId);
 

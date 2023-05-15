@@ -28,8 +28,15 @@ namespace VKCollectionApi.Controllers
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetProductById(int id)
 		{
-			var productById = await productService.GetProductById(id);
-			return Ok(productById);
+			try
+			{
+				var productById = await productService.GetProductById(id);
+				return Ok(productById);
+			}
+			catch (NotFoundException ne)
+			{
+				return BadRequest(ne);
+			}
 		}
 
 		[HttpPost]

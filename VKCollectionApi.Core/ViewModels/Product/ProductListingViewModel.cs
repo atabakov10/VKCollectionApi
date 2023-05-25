@@ -7,5 +7,6 @@
 		public decimal? Price { get; init; }
 		public string ImageUrl { get; init; }
 		public string Category { get; init; }
+		public DateTime CreatedOn { get; set; }
 	}
 }

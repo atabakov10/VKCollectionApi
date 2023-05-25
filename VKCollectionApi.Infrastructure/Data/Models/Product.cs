@@ -22,6 +22,8 @@ namespace VKCollectionApi.Infrastructure.Data.Models
 		[Required]
 		public string Description { get; set; } = null!;
 
+		public DateTime CreatedOn { get; set; }
+
 		[Required]
 		[Url]
 		public string ImageUrl { get; set; } = null!;

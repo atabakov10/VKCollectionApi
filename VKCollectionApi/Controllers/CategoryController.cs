@@ -45,7 +45,7 @@ namespace VKCollectionApi.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
-		[HttpGet("{id}")]
+		[HttpGet("{id:int}")]
 		public async Task<ActionResult<ProductCategoryViewModel>> GetCategoryById(int id)
 		{
 			try
@@ -64,7 +64,7 @@ namespace VKCollectionApi.Controllers
 			}
 		}
 
-		[HttpDelete("{id}")]
+		[HttpDelete("{id:int}")]
 		public async Task<ActionResult> DeleteCategory(int id)
 		{
 			try
@@ -83,7 +83,7 @@ namespace VKCollectionApi.Controllers
 			}
 		}
 
-		[HttpPut("{id}")]
+		[HttpPut("{id:int}")]
 		public async Task<ActionResult> EditCategory(ProductCategoryViewModel model)
 		{
 			try

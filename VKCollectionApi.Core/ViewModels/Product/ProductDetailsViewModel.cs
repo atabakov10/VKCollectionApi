@@ -11,5 +11,7 @@
         public string CategoryName { get; set; }
         public string SellerId { get; init; }
         public string SellerName { get; set; }
+
+        public DateTime CreatedOn { get; set; }
     }
 }

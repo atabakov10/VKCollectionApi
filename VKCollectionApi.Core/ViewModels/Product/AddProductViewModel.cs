@@ -23,6 +23,7 @@ namespace VKCollectionApi.Core.ViewModels.Product
 		[Required]
 		public string SellerId { get; set; } = null!;
 
+		public DateTime CreatedOn { get; set; }
 
 		public string? ImageUrl { get; set; }
 

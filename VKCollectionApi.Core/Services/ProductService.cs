@@ -34,7 +34,8 @@ namespace VKCollectionApi.Core.Services
 				Name = product.Name,
 				Price = product.Price,
 				ImageUrl = product.ImageUrl,
-				Category = product.ProductCategory.Name
+				Category = product.ProductCategory.Name,
+				CreatedOn = product.CreatedOn,
 			};
 
 			return productViewModel;
@@ -68,22 +69,19 @@ namespace VKCollectionApi.Core.Services
 		{
 			var allProteins = await dbContext.Products
 				.Include(x => x.ProductCategory)
+				.OrderByDescending(x => x.CreatedOn)
 				.Select(protein => new ProductListingViewModel()
 				{
 					Id = protein.Id,
 					ImageUrl = protein.ImageUrl,
 					Name = protein.Name,
 					Price = protein.Price,
-					Category = protein.ProductCategory.Name
+					Category = protein.ProductCategory.Name,
+					CreatedOn = protein.CreatedOn
 				})
 				.ToListAsync();
 
-			if (allProteins == null)
-			{
-				throw new NullReferenceException("Something went wrong!");
-			}
-
-			return allProteins;
+			return allProteins ?? throw new NullReferenceException("Something went wrong!");
 		}
 
 
@@ -97,7 +95,8 @@ namespace VKCollectionApi.Core.Services
 				Description = productViewModel.Description,
 				ImageUrl = productViewModel.ImageUrl,
 				CategoryId = productViewModel.CategoryId,
-				SellerId = productViewModel.SellerId
+				SellerId = productViewModel.SellerId,
+				CreatedOn = DateTime.Now
 			};
 
 			await dbContext.AddAsync(product);
@@ -151,7 +150,8 @@ namespace VKCollectionApi.Core.Services
 				CategoryName = product.ProductCategory.Name,
 				ImageUrl = product.ImageUrl,
 				SellerId = product.SellerId,
-				SellerName = $"{product.Client.FirstName} {product.Client.LastName}"
+				SellerName = $"{product.Client.FirstName} {product.Client.LastName}",
+				CreatedOn = product.CreatedOn,
 			};
 
 			return productViewModel;

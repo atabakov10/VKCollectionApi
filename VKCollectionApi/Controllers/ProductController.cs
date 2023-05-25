@@ -25,7 +25,7 @@ namespace VKCollectionApi.Controllers
 			return Ok(products);
 		}
 
-		[HttpGet("{id}")]
+		[HttpGet("{id:int}")]
 		public async Task<IActionResult> GetProductById(int id)
 		{
 			try
@@ -61,7 +61,7 @@ namespace VKCollectionApi.Controllers
 			}
 		}
 
-		[HttpDelete("{id}")]
+		[HttpDelete("{id:int}")]
 		public async Task<ActionResult> DeleteProduct(int id)
 		{
 			try
@@ -79,7 +79,7 @@ namespace VKCollectionApi.Controllers
 			}
 		}
 
-		[HttpPut("{id}")]
+		[HttpPut("{id:int}")]
 		public async Task<IActionResult> EditCategory(AddProductViewModel model)
 		{
 			try
